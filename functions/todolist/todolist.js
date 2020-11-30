@@ -7,15 +7,15 @@ require("dotenv").config()
 
 const typeDefs = gql`
   type Query {
-    todos: [Todo]
+    todos: [Todo!]!
   }
   type Mutation {
-    addTodo(text: String!): String
-    removeTodo(id: String!): String
+    addTodo(text: String!): Todo!
+    removeTodo(id: ID!): Todo!
   }
   type Todo {
-    id: String
-    text: String
+    id: ID!
+    text: String!
     done: Boolean!
   }
 `
@@ -36,7 +36,7 @@ const resolvers = {
         
         return result.data.map( (d) => {
           return {
-            id: d.ts,
+            id: d.ref.id,
             text: d.data.text,
             done: d.data.done
           }
@@ -61,22 +61,30 @@ const resolvers = {
           )
         )
         
-        console.log(result)
-        return result.ref.data;
+        console.log("DATA : ", result);
+        return {
+          id: result.ref.id,
+          task: result.data.task,
+          done: result.data.done,
+        };
       } catch (error) {
-        return error.toString()
+        console.log("Error : ", error)
       }
     },
-    removeTodo: async (_, { id }) => {
+      removeTodo: async (_, { id }) => {
     try {
       const adminClient = new faunadb.Client({ secret: process.env.FAUNA_SECRETS  });
         const result = await adminClient.query(
         q.Delete(q.Ref(q.Collection("todos"), id))
       )
-
-      return result.id.toString()
+      console.log("DATA : ", result);
+      return {
+        id: result.ref.id,
+        task: result.data.task,
+        done: result.data.done,
+      };
     } catch (error) {
-      return error.toString()
+      console.log("Error : ", error);
     }
   },
 },

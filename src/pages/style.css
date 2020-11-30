@@ -9,7 +9,7 @@ body {
     justify-content: center;
     min-height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
-    background-color: #ecf0f1;
+    background-color: #223033;
     margin: 0 auto;
 }
 
@@ -62,11 +62,14 @@ body {
 .add_todo label input {
     width: 100%;
     padding: 10px;
+    border-radius: 5px;
 }
 
 .add_todo button {
     padding: 10px;
     margin-left: 10px;
+    border-radius: 8px;
+    background-color: rgb(210, 210, 240) ;
 }
 .listTodo{
     display: flex;
@@ -74,4 +77,10 @@ body {
 }
 .icons{
     cursor: pointer;
+    color: red;
+}
+.todoMain {
+    max-width: 100vw;
+    align-items: center;
+    margin: 5px;
 }

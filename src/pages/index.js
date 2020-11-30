@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import "./style.css";
 import { Delete } from "@material-ui/icons";
+import { CircularProgress } from "@material-ui/core";
 
 const GET_TODO = gql`
   {
@@ -16,17 +17,23 @@ const GET_TODO = gql`
 
 const ADD_TODO = gql`
   mutation addTodo($text: String!){
-    addTodo(text: $text)
+    addTodo(text: $text){
+        id
+        text
+        done
+    }
   }
 `;
 const DELETE_TODO = gql`
-  mutation RemoveTodo($id: String!) {
-    removeTodo(id: $id)
+  mutation RemoveTodo($id: ID!) {
+    removeTodo(id: $id){
+        id
+      }
   }
 `
 
 export default function Home() {
-  let textInput;
+  const [text, setText] = useState("");
 
   const [addTodo] = useMutation(ADD_TODO);
   
@@ -35,22 +42,24 @@ export default function Home() {
   const addNewTodo = () => {
     addTodo({
       variables: {
-        text: textInput.value
+        text: text
       },
       refetchQueries: [{ query: GET_TODO }]
     })
-    textInput.value = "";
+    setText("");
   }
   const handleDelete = (id)=> {
     removeTodo({
       variables: { id: id },
       refetchQueries: [{ query: GET_TODO }],
     })
-      }
+       }
   const { loading, error, data } = useQuery(GET_TODO);
 
   if ( loading ) {
-    return <h2>Loading...</h2>
+    return (
+      <CircularProgress className="todoMain" variant="determinate" value={25} />
+    );
   }
   
   if ( error ) {
@@ -59,21 +68,23 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>My Todo List</h1>
+      <h1>My Todo App</h1>
       <form className="add_todo">
         <label>
-          <input type="text" required ref={node => {textInput = node}} placeholder="Add Todo..." />
+          <input type="text" required onChange={(e) => setText(e.target.value)} placeholder="Add Todo..." />
         </label>
         <button onClick={addNewTodo}>Add</button>
       </form>
       <ul>
-        {data?.todos.map(todo => 
+        {data && data.todos.map(todo => 
           <li key={todo.id}>
             <div className="listTodo">
                 <div>
 
                 {todo.text}
+                
                 </div>
+                
                 <div className="icons">
                 <Delete 
                  edge="end"
